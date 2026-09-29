@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cardápio e diário – Fernanda</title>
+<style>
+:root{--bg:#faf7f2;--cd:#fff;--tx:#2b2a28;--mu:#6d6a64;--ac:#3f7d58;--dl:#c8642c;--dlb:#fbe9dd;--bd:#e6e0d6;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1c1b19;--cd:#262522;--tx:#efece6;--mu:#a29e95;--ac:#7fc79a;--dl:#f0965d;--dlb:#3a2a20;--bd:#39362f}}
+:root[data-theme="dark"]{--bg:#1c1b19;--cd:#262522;--tx:#efece6;--mu:#a29e95;--ac:#7fc79a;--dl:#f0965d;--dlb:#3a2a20;--bd:#39362f}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:820px;margin:0 auto;padding:14px 14px 60px}
+h1{font-size:1.35rem;margin:0}h2{font-size:1.1rem;margin:18px 0 8px;color:var(--ac)}
+.mu{color:var(--mu);font-size:.85rem}
+nav{display:flex;gap:6px;margin:10px 0;overflow-x:auto}
+nav button,.bt{border:1px solid var(--bd);background:var(--cd);color:var(--tx);border-radius:20px;padding:7px 14px;font:inherit;font-size:.9rem;cursor:pointer;white-space:nowrap}
+nav button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.cd{background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;margin:10px 0}
+.cd.d{border-color:var(--dl);background:var(--dlb)}
+.hd{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.tm{font-weight:700;color:var(--ac)}.d .tm{color:var(--dl)}
+.pl{margin:2px 0 8px;font-size:.95rem}
+.th{display:flex;gap:3px;margin:4px 0 2px}
+.th button{flex:1;min-width:0;height:34px;border:2px solid transparent;border-radius:6px;background:var(--c);opacity:.35;color:#fff;font-weight:700;font-size:.8rem;cursor:pointer;padding:0}
+.th button.ideal{border-color:var(--tx);opacity:.6}
+.th button.on{opacity:1;transform:scale(1.12);outline:2px solid var(--tx)}
+.lb{font-size:.8rem;color:var(--mu);min-height:1.1em}
+.k{font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:var(--mu);margin-top:8px}
+input[type=text],input[type=number],select,textarea{width:100%;box-sizing:border-box;border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:8px;padding:8px;font:inherit;font-size:.92rem}
+textarea{min-height:70px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row>*{flex:1}.row>.bt{flex:none}
+.sc{display:flex;gap:6px}.sc button{flex:1;font-size:1.25rem;background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:4px;cursor:pointer;opacity:.5}
+.sc button.on{opacity:1;border-color:var(--ac);background:var(--cd)}
+.ct{display:flex;align-items:center;gap:10px}.ct b{min-width:1.5em;text-align:center;font-size:1.1rem}
+.g{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.wr{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:6px 8px;border-bottom:1px solid var(--bd);text-align:center;white-space:nowrap}th:first-child,td:first-child{text-align:left}
+tr[data-a=go]{cursor:pointer}
+label.ck{display:flex;gap:8px;align-items:flex-start;padding:4px 0;font-size:.92rem;cursor:pointer}
+label.ck input{margin-top:4px;accent-color:var(--ac)}
+label.ck input:checked+span{text-decoration:line-through;color:var(--mu)}
+.ban{background:var(--dlb);border:1px solid var(--dl);border-radius:10px;padding:8px 12px;font-size:.85rem;margin:8px 0}
+details{margin:8px 0}summary{cursor:pointer;color:var(--ac);font-size:.9rem}
+</style>
+</head>
+<body>
+<main>
+<h1>Cardápio e diário da Fernanda</h1>
+<div class="mu">Cardápio, termômetro de fome, diário e comentários</div>
+<nav id="nav"></nav>
+<div id="ban"></div>
+<div id="app"></div>
+</main>
+<script>
+const T=[["cm","Café da manhã","07:30"],["li","Lanche","10:00"],["al","Almoço","12:30"],["ct","Café da tarde","15:30"],["ja","Jantar","19:30"],["ce","Ceia","21:30"]];
+const WD=["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
+const WL=["Semana A","Semana B","Semana C","Semana D"];
+const SM="Smoothie de morango com banana e laranja (receita na aba Semana)",SM2="Smoothie de pitaya com banana e laranja (receita na aba Semana)",SH="Shake proteico banofee (receita na aba Semana)",OV="Pão francês com ovo mexido, mamão papaya e suco de laranja natural",CR="Crepioca de muçarela com peito de peru (receita na aba Semana)",AB1="Pão com queijo e peito de peru + café",AB2="Torrada com homus, ovo cozido e suco natural",AB3="Tapioca com queijo e peito de peru + café",AB4="Panqueca de aveia com banana e canela + café",AD1="Sanduíche de atum com maionese, azeitonas e queijo + cenoura ralada",AD2="Ovos recheados com atum, estilo devilled egg, + pão + legumes cozidos",AC="Pão com pasta de atum, azeitonas e queijo + café preto";
+// Cardápio de 4 semanas (A, B, C, D) que se repetem em ciclo, a partir de REF (segunda-feira)
+const REF=new Date("2026-09-28T00:00:00");
+const MENU=[
+{1:[OV,"Iogurte + kiwi gold","Arroz + feijão + filé de peixe branco grelhado + abóbora refogada + couve refogada","Pão com homus + café preto","Holy Foods: Mac Alfredo","Pipoca"],
+2:[CR,"Torrada com guacamole","Arroz + estrogonofe de frango com cogumelos + brócolis cozido",SM,AD1,"Overnight oats"],
+3:[OV,"Granola + iogurte + morango","Arroz + feijão + kibe vegano + cenoura ralada + couve refogada","Bolo simples + café preto","DELIVERY: sopa","Pipoca"],
+4:[CR,"Iogurte + pitaya","Arroz com ervas + tofu grelhado (ou omelete, se faltar tofu) + brócolis no alho + cenoura ralada",AC,"Holy Foods: Mac Queijo","Pipoca"],
+5:[AB1,"Maçã verde fatiada","Purê de batata-doce + grão-de-bico ao curry + legumes assados",SH,"DELIVERY: fast food","Iogurte"],
+6:[CR,"Granola + iogurte + morango","DELIVERY: feijoada vegana + arroz + couve + laranja em rodelas","Bolo + café preto","Holy Foods: risoto de funghi (cogumelos)","Pipoca"],
+0:[OV,"Iogurte + morango","DELIVERY: macarrão de massa fresca",SM2,"Holy Foods: macarrão de lentilha + queijo ralado","Overnight oats"]},
+{1:[CR,"Iogurte + morango","Arroz + hambúrguer de grão-de-bico + abóbora refogada + couve refogada + farofa",AC,"Holy Foods: Mac Alfredo","Pipoca"],
+2:[OV,"Torrada com guacamole","Arroz + filé de peixe branco grelhado + brócolis e cogumelos salteados",SM,AD2,"Overnight oats"],
+3:[AB2,"Granola + iogurte + pitaya","Arroz + feijão + almôndegas de proteína de soja + abóbora refogada + farofa de cenoura","Bolo simples + café preto","DELIVERY: sopa","Pipoca"],
+4:[OV,"Iogurte + kiwi gold","Macarrão ao molho de lentilha + cenoura ralada + cogumelos salteados","Pão com homus + café preto","Holy Foods: Mac Queijo","Pipoca"],
+5:[CR,"Maçã verde fatiada","Arroz + feijão + tofu mexido (ou omelete, se faltar tofu) + purê de batata-doce + cenoura cozida",SH,"DELIVERY: fast food","Iogurte"],
+6:[OV,"Granola + iogurte + morango","DELIVERY: feijoada vegana (ou outro prato) + arroz + couve + laranja em rodelas","Bolo + café preto","Holy Foods: risoto de funghi (cogumelos)","Pipoca"],
+0:[CR,"Iogurte + kiwi gold","DELIVERY: macarrão de massa fresca (ou outra massa)",SM2,"Holy Foods: macarrão de lentilha + queijo ralado","Overnight oats"]},
+{1:[OV,"Iogurte + kiwi gold","Arroz + feijão + hambúrguer de grão-de-bico + couve refogada + farofa de cenoura","Pão com homus + café preto","Holy Foods: Mac Alfredo","Pipoca"],
+2:[CR,"Torrada com guacamole","Arroz + estrogonofe de frango com cogumelos + cenoura cozida",SM,AD1,"Overnight oats"],
+3:[AB3,"Granola + iogurte + pitaya","Arroz + filé de peixe branco grelhado + purê de batata-doce + brócolis","Bolo simples + café preto","DELIVERY: sopa","Pipoca"],
+4:[OV,"Maçã verde fatiada","Arroz + quibe de lentilha + beterraba cozida + cenoura ralada",AC,"Holy Foods: Mac Queijo","Pipoca"],
+5:[CR,"Granola + iogurte + morango","Purê de mandioquinha + refogado de lentilha com cenoura e alho-poró + cenoura ralada com salsinha",SH,"DELIVERY: fast food","Iogurte"],
+6:[OV,"Granola + iogurte + pitaya","DELIVERY: feijoada vegana (ou outro prato) + arroz + couve + laranja em rodelas","Bolo + café preto","Holy Foods: risoto de funghi (cogumelos)","Pipoca"],
+0:[CR,"Iogurte + morango","DELIVERY: macarrão de massa fresca (ou outra massa)",SM2,"Holy Foods: macarrão de lentilha + queijo ralado","Overnight oats"]},
+{1:[CR,"Iogurte + kiwi gold","Arroz com ervas + tofu grelhado (ou omelete, se faltar tofu) + abóbora refogada + couve refogada",AC,"Holy Foods: Mac Alfredo","Pipoca"],
+2:[OV,"Torrada com guacamole","Arroz + feijão + kibe vegano + brócolis e cogumelos salteados",SM,AD2,"Overnight oats"],
+3:[AB4,"Iogurte + pitaya","Arroz + almôndegas de proteína de soja + purê de batata-doce + cenoura cozida","Bolo simples + café preto","DELIVERY: sopa","Pipoca"],
+4:[CR,"Granola + iogurte + morango","Macarrão ao molho de lentilha + filé de peixe branco grelhado + brócolis","Pão com homus + café preto","Holy Foods: Mac Queijo","Pipoca"],
+5:[OV,"Maçã verde fatiada","Arroz + feijão + grão-de-bico ao curry + legumes assados",SH,"DELIVERY: fast food","Iogurte"],
+6:[CR,"Granola + iogurte + kiwi gold","DELIVERY: feijoada vegana (ou outro prato) + arroz + couve + laranja em rodelas","Bolo + café preto","Holy Foods: risoto de funghi (cogumelos)","Pipoca"],
+0:[OV,"Iogurte + morango","DELIVERY: macarrão de massa fresca (ou outra massa)",SM2,"Holy Foods: macarrão de lentilha + queijo ralado","Overnight oats"]}];
+const ORD=[1,2,3,4,5,6,0];
+function weekIdx(dt){const dd=new Date(dt.getFullYear(),dt.getMonth(),dt.getDate());const diff=Math.round((dd-REF)/86400000);const wk=Math.floor(diff/7);return((wk%4)+4)%4}
+let semW=weekIdx(new Date());
+const HL=["","Fome extrema (tontura, irritação)","Muita fome","Fome","Fome leve: bom momento de comer","Neutra","Satisfeita: bom momento de parar","Confortável","Cheia","Muito cheia","Mal-estar"];
+const EM=["😞","🙁","😐","🙂","😄"];
+const SHOPWK=[
+{prot:["Filé de peixe branco – 2 filés (1x na semana)","Peito de frango – 300 g","Tofu (se encontrar) – 1 pacote","Kibe vegano de soja – 1 pacote","Grão-de-bico – 1 lata ou 300 g"],
+ leg:["Batata-doce – 2","Legumes para assar (abobrinha, pimentão) – 400 g","Brócolis – 1 maço","Abóbora – 300 g","Cenoura – 400 g","Couve – 1 maço"]},
+{prot:["Hambúrguer de grão-de-bico – 1 caixa","Filé de peixe branco – 2 filés (1x na semana)","Almôndegas de proteína de soja – 1 pacote","Lentilha (para o molho) – 250 g","Tofu (se encontrar) – 1 pacote"],
+ leg:["Batata-doce – 1","Abóbora – 400 g","Cenoura – 400 g","Couve – 1 maço","Brócolis – 1 maço","Cogumelos frescos – 200 g"]},
+{prot:["Hambúrguer de grão-de-bico – 1 caixa","Peito de frango – 300 g","Filé de peixe branco – 2 filés (1x na semana)","Lentilha (para quibe e refogado) – 400 g"],
+ leg:["Batata-doce – 1","Beterraba – 2","Mandioquinha – 500 g","Alho-poró – 1","Salsinha – 1 maço","Cenoura – 500 g","Couve – 1 maço","Brócolis – 1 maço"]},
+{prot:["Tofu (se encontrar) – 1 pacote","Kibe vegano de soja – 1 pacote","Almôndegas de proteína de soja – 1 pacote","Filé de peixe branco – 2 filés (1x na semana)","Grão-de-bico – 1 lata ou 300 g"],
+ leg:["Batata-doce – 2","Legumes para assar (abobrinha, pimentão) – 400 g","Cenoura – 400 g","Couve – 1 maço","Abóbora – 300 g","Brócolis – 1 maço"]}];
+function shopFor(w){return{
+"Holy Foods (4 jantares)":["Mac Alfredo – 1","Mac Queijo – 1","Risoto de funghi – 1","Macarrão de lentilha – 1"],
+"Proteínas":["Peito de peru fatiado – 1 pacote","Atum em lata – 4 latas","Ovos – 2 dúzias","Homus pronto (ou 1 lata de grão-de-bico para bater) – 2 potes","Albumina Uevo sabor banofee – 1 pote","Proteína neutra (opcional) – 1",...SHOPWK[w].prot],
+"Grãos, massas e pães":["Arroz – 1 kg","Feijão – 500 g","Macarrão comum – 500 g","Molho sugo (se precisar) – 1","Goma de tapioca – 500 g","Aveia em flocos – 500 g","Chia – 1 pacote","Granola – 1 pacote","Pão de forma – 1","Pão francês – 8 unid.","Torradas – 1 pacote","Pipoca – 1 pacote"],
+"Laticínios":["Iogurte natural ou vegano – 8 potes","Leite (overnight) – 1 L","Leite vegetal (shake) – 1 L","Muçarela fatiada – 150 g","Queijo ralado – 1 pacote","Creme de leite – 1"],
+"Frutas":["Banana prata (algumas para congelar) – 1 dúzia","Mamão papaya – 1 médio","Morango – 2 bandejas","Kiwi gold – 3","Pitaya – 2","Maçã verde – 2","Laranja (suco na hora) – 8","Abacate (guacamole) – 2"],
+"Legumes e cogumelos":["Cebola – 3","Alho – 1 cabeça","Limão – 3","Tomate (só guacamole) – 1","Cogumelos frescos (paris ou shimeji) – 300 g",...SHOPWK[w].leg],
+"Lanches, bebidas e despensa":["Coca-Cola lata – 7","Xarope de caramelo Tasty zero açúcar – 1","Chips de banana – 1","Bolo simples – 4 fatias","Café em pó – 250 g","Curry em pó – 1 pote","Farinha de mandioca (farofa) – 1 pacote","Azeitonas – 1 vidro","Maionese – 1 pote","Azeite, sal, mostarda, orégano, canela","Açúcar ou mel; margarina"]}}
+
+const key=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const dOf=k=>new Date(k+"T12:00:00");
+const H=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let db=null,S={},C={},tab="hoje",cur=key(new Date()),tm={};
+const day=k=>S[k]||(S[k]={m:{},agua:0,coca:0,sono:"",en:0,hu:0,int:"",peso:"",kcal:"",prot:"",nota:""});
+const META_KCAL=1500,META_PROT=110;
+
+function save(k){if(!db)return;clearTimeout(tm[k]);tm[k]=setTimeout(()=>db.doc("diario/"+k).set(S[k]).catch(()=>ban("Não foi possível salvar agora. Tente de novo.")),500)}
+function saveC(){if(db)db.doc("compras/lista").set({c:C}).catch(()=>{})}
+function ban(t){document.getElementById("ban").innerHTML=t?`<div class="ban">${t}</div>`:""}
+
+const th=(s,k,v)=>`<div class="th">`+[1,2,3,4,5,6,7,8,9,10].map(n=>`<button data-a="th" data-s="${s}" data-k="${k}" data-v="${n}" class="${v==n?"on":""}${(k=="b"?n==3||n==4:n==6||n==7)?" ideal":""}" style="--c:hsl(${Math.round(215-n*21.5)},70%,45%)">${n}</button>`).join("")+`</div><div class="lb">${v?H(HL[v]):"toque para marcar"}</div>`;
+const sc=(f,v)=>`<div class="sc">`+EM.map((e,i)=>`<button data-a="sc" data-f="${f}" data-v="${i+1}" class="${v==i+1?"on":""}">${e}</button>`).join("")+`</div>`;
+
+function hoje(){
+ const D=day(cur),dt=dOf(cur),wi=weekIdx(dt),M=MENU[wi][dt.getDay()],isT=cur==key(new Date());
+ let h=`<div class="hd"><button class="bt" data-a="nav" data-v="-1">‹</button><div style="text-align:center"><b>${WD[dt.getDay()]}, ${dt.toLocaleDateString("pt-BR")}</b> <span class="mu">· ${WL[wi]}</span>${isT?"":` <button class="bt" data-a="today">Hoje</button>`}</div><button class="bt" data-a="nav" data-v="1">›</button></div>
+ <details><summary>Como usar o termômetro de fome</summary><div class="mu">Marque de 1 a 10 <b>antes</b> e <b>depois</b> de comer. Os quadros com borda mostram a zona ideal: chegar à refeição com fome leve (3–4) e parar satisfeita ou confortável (6–7). Não existe nota certa ou errada, é só observar.</div></details><div id="daycard">`;
+ T.forEach(([s,n,t],i)=>{const m=D.m[s]||{},dl=M[i].startsWith("DELIVERY");
+  h+=`<div class="cd${dl?" d":""}"><div class="hd"><b>${n}</b><span class="tm">${t}</span></div><div class="pl">${H(M[i])}</div>
+  <div class="k">Antes de comer</div>${th(s,"b",m.b)}
+  <label class="ck"><input type="checkbox" data-f="ate" data-s="${s}" ${m.ate?"checked":""}><span>Comi</span></label>
+  <div class="k">Depois de comer</div>${th(s,"a",m.a)}
+  <input type="text" data-f="mn" data-s="${s}" placeholder="Como me senti, o que comi de diferente…" value="${H(m.n)}"></div>`});
+ h+=`<div class="cd"><b>Acompanhamento do dia</b>
+  <div class="row"><div><div class="k">Calorias do dia (kcal)</div><input type="number" step="10" min="0" data-f="kcal" value="${H(D.kcal)}"></div>
+  <div><div class="k">Proteína do dia (g)</div><input type="number" step="1" min="0" data-f="prot" value="${H(D.prot)}"></div></div>
+  <div class="mu">${D.kcal?`Meta: ${META_KCAL} kcal · ${D.kcal<=META_KCAL?`faltam ${META_KCAL-D.kcal} kcal`:`${D.kcal-META_KCAL} kcal acima da meta`}`:`Meta do dia: ${META_KCAL} kcal e ${META_PROT}+ g de proteína`}${D.prot?` · ${D.prot>=META_PROT?"proteína na meta ✓":`faltam ${META_PROT-D.prot} g de proteína`}`:""}</div>
+  <div class="row"><div><div class="k">Água (copos)</div><div class="ct"><button class="bt" data-a="ct" data-f="agua" data-v="-1">−</button><b>${D.agua}</b><button class="bt" data-a="ct" data-f="agua" data-v="1">+</button></div></div>
+  <div><div class="k">Coca-Cola (latas)</div><div class="ct"><button class="bt" data-a="ct" data-f="coca" data-v="-1">−</button><b>${D.coca}</b><button class="bt" data-a="ct" data-f="coca" data-v="1">+</button></div></div></div>
+  <div class="k">Energia</div>${sc("en",D.en)}<div class="k">Humor</div>${sc("hu",D.hu)}
+  <div class="row"><div><div class="k">Sono (horas)</div><input type="number" step="0.5" min="0" max="16" data-f="sono" value="${H(D.sono)}"></div>
+  <div><div class="k">Peso (kg, opcional)</div><input type="number" step="0.1" data-f="peso" value="${H(D.peso)}"></div></div>
+  <div class="k">Intestino e digestão</div><select data-f="int"><option value="">Selecione</option>${["Tudo bem","Estufamento","Prisão de ventre","Diarreia","Azia ou refluxo"].map(o=>`<option ${D.int==o?"selected":""}>${o}</option>`).join("")}</select>
+  <div class="k">Observações do dia</div><textarea data-f="nota" placeholder="Anotações para a próxima consulta…">${H(D.nota)}</textarea></div></div>
+ <button class="bt" data-a="cm" style="width:100%">Comentar neste dia</button>`;
+ return h}
+
+function semana(){
+ const wi=weekIdx(new Date()),td=new Date().getDay();
+ let h=`<div class="mu">Cardápio de 4 semanas (A, B, C, D) que se repetem em ciclo. Hoje é <b>${WL[wi]}</b>.</div>
+ <nav>${[0,1,2,3].map(w=>`<button data-a="semw" data-v="${w}" class="${semW==w?"on":""}">${WL[w]}</button>`).join("")}</nav>
+ <div class="g">`+ORD.map(w=>`<div class="cd" ${w==td&&semW==wi?'style="border-color:var(--ac)"':""}><b>${WD[w]}${w==td&&semW==wi?" (hoje)":""}</b>`+T.map(([s,n,t],i)=>`<div class="pl" style="${MENU[semW][w][i].startsWith("DELIVERY")?"color:var(--dl)":""}"><span class="mu">${t} ${n}</span><br>${H(MENU[semW][w][i])}</div>`).join("")+`</div>`).join("")+`</div>
+ <h2>Receitas</h2>
+ <div class="cd"><b>Pão francês com ovo mexido, mamão papaya e suco de laranja</b><div class="pl">Café da manhã preferido dela: pão francês com ovo mexido, mamão papaya em pedaços e suco de laranja espremido na hora.</div></div>
+ <div class="cd"><b>Crepioca de muçarela com peito de peru</b><ol><li>Bata 1 ovo com 2 colheres de sopa de goma de tapioca até formar uma massa lisa.</li><li>Despeje numa frigideira antiaderente quente e espere firmar dos dois lados.</li><li>Recheie com muçarela e peito de peru fatiado e dobre ao meio.</li></ol></div>
+ <div class="cd"><b>Tapioca com queijo e peito de peru</b><div class="pl">Igual à crepioca, mas só com a goma de tapioca (sem ovo), recheada com queijo e peito de peru.</div></div>
+ <div class="cd"><b>Panqueca de aveia com banana e canela</b><div class="pl">Bata aveia, 1 ovo, banana amassada e canela; frite pequenas porções na frigideira como panqueca.</div></div>
+ <div class="cd"><b>Smoothie de morango (ou pitaya) com banana e laranja</b><ol><li>Esprema o suco de laranja na hora e hidrate 2 colheres de sopa de chia nele por 10 minutos.</li><li>Bata com morango congelado (ou pitaya congelada, nas semanas B e D), banana congelada e iogurte.</li><li>Opcional: 1 dose de proteína de sabor neutro.</li></ol></div>
+ <div class="cd"><b>Shake proteico banofee</b><ol><li>Bata albumina Uevo sabor banofee com banana congelada e leite vegetal.</li><li>Finalize com xarope de caramelo Tasty zero açúcar.</li></ol></div>
+ <div class="cd"><b>Pasta de atum com azeitonas (para sanduíche ou "maionese" de recheio)</b><ol><li>Escorra 1 lata de atum e amasse com maionese, azeitonas picadas e um fio de limão.</li><li>Use para rechear pão, torrada ou como pasta com queijo.</li></ol></div>
+ <div class="cd"><b>Ovos recheados de atum (estilo devilled egg)</b><ol><li>Cozinhe os ovos, corte ao meio e retire a gema.</li><li>Amasse a gema com atum escorrido, maionese e azeitonas picadas.</li><li>Recheie as claras com a mistura.</li></ol></div>
+ <div class="cd"><b>Preparos em lote: rendimento e prazo</b><ul>
+ <li>Homus (1 lata de grão-de-bico batida, ou 1 pote pronto de 200 g): ~8 porções de 2 colheres de sopa; dura 4–5 dias na geladeira. Usar nos cafés e lanches dentro desse prazo.</li>
+ <li>Hambúrguer de grão-de-bico (1 caixa): rende para 2 almoços; o que sobrar pode ir para o congelador.</li>
+ <li>Almôndegas de proteína de soja (1 pacote): rende 2 almoços; congelar o restante em porções.</li>
+ <li>Estrogonofe de frango (300 g de peito): rende 2–3 porções; pode ser feito em lote e congelado.</li>
+ <li>Molho de lentilha (1 pacote de lentilha cozida): rende para 2 porções de macarrão.</li>
+ <li>Quibe de lentilha (400 g de lentilha): rende para 1 almoço, com sobra para congelar.</li>
+ <li>Atum em lata (1 lata ~170 g): rende 2 porções de sanduíche ou recheio; depois de aberta, usar em até 2 dias na geladeira.</li>
+ <li>Overnight oats e chia hidratada: preparar em potes individuais na véspera, não rende para vários dias.</li>
+ </ul></div>
+ <div class="cd"><b>Ajuste para meta de 1.500 kcal com proteína alta</b><div class="pl">Estimativa, não é laudo nutricional — os valores exatos (principalmente do Holy Foods e do delivery) valem confirmar com a nutricionista. Meta sugerida: ~1.500 kcal e 110g+ de proteína/dia (~30% das calorias vindo de proteína).</div>
+ <div class="k">Orçamento por refeição (aprox.)</div>
+ <div class="wr"><table><tr><th>Refeição</th><th>Kcal</th><th>Proteína</th></tr>
+ <tr><td>Café da manhã</td><td>~280</td><td>~22 g</td></tr>
+ <tr><td>Lanche</td><td>~100</td><td>~6 g</td></tr>
+ <tr><td>Almoço</td><td>~380</td><td>~38 g</td></tr>
+ <tr><td>Café da tarde</td><td>~140</td><td>~12 g</td></tr>
+ <tr><td>Jantar</td><td>~320</td><td>~28 g</td></tr>
+ <tr><td>Ceia</td><td>~100</td><td>~6 g</td></tr>
+ <tr><td>Coca-Cola (1 lata)</td><td>~140</td><td>0 g</td></tr>
+ </table></div>
+ <div class="k">Como chegar lá sem mudar a estrutura do cardápio</div>
+ <ul>
+ <li><b>Café da manhã:</b> no OV, 1 pão francês menor ou meio pão de forma, suco em copo pequeno (100 ml). Na crepioca, 1 fatia de muçarela e 2 fatias de peito de peru já bastam.</li>
+ <li><b>Almoço:</b> a parte que mais compensa aumentar é a proteína (150–180 g de peixe/frango/tofu) e a que mais compensa controlar é o arroz (2–3 colheres de sopa); legumes e folhas cozidas podem ser à vontade, pesam pouco em caloria e ajudam a saciar.</li>
+ <li><b>Jantar com Holy Foods:</b> comer cerca de 2/3 do pacote e completar com uma proteína extra (2 claras cozidas, um pouco de frango desfiado ou atum) rende menos caloria e mais proteína do que o pacote inteiro sozinho.</li>
+ <li><b>Café da tarde:</b> priorizar as versões com atum (mais proteicas) em vez do pão com homus puro; se for homus, somar 1 ovo cozido.</li>
+ <li><b>Homus:</b> 1 colher de sopa em vez de 2 já reduz caloria sem tirar o alimento do cardápio.</li>
+ <li><b>Delivery (quarta, sexta, sábado, domingo):</b> difícil de controlar com precisão; ajuda pedir porção menor, molho à parte e priorizar a proteína do prato (ex.: mais peixe/frango, menos massa ou fritura).</li>
+ <li><b>Coca-Cola:</b> a lata já está contada no orçamento (~140 kcal). Se um dia passar da meta, ela é a troca mais fácil por uma versão zero açúcar, mas fica à escolha dela.</li>
+ </ul></div>
+ <div class="cd"><b>Frutas:</b> banana prata, mamão papaya, morango, kiwi gold, pitaya e maçã verde, distribuídas para não repetir a mesma fruta no mesmo dia.</div>
+ <div class="cd"><b>Peixe:</b> 1x por semana em todas as 4 semanas (o dia muda a cada semana), como pede o perfil pescetariano/flexitariano.</div>
+ <div class="cd"><b>Ovo e tofu:</b> ela prefere tofu mexido/grelhado a ovo, mas o tofu costuma faltar. Por isso o ovo fica como padrão com o tofu como troca sempre que achar.</div>
+ <div class="cd"><b>Coca-Cola:</b> 1 lata por dia, de preferência junto do almoço ou do café da tarde.</div>`;
+ return h}
+
+const av=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length).toFixed(1):"–";
+function hist(){
+ const ks=[];for(let i=0;i<14;i++){const d=new Date();d.setDate(d.getDate()-i);ks.push(key(d))}
+ let bs=[],as=[],ext=0,cheia=0,kc=[],pr=[];
+ const rows=ks.map(k=>{const D=S[k];if(!D)return`<tr data-a="go" data-k="${k}"><td>${dOf(k).toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})}</td><td colspan="9" class="mu">sem registro</td></tr>`;
+  const ms=Object.values(D.m),b=ms.map(x=>x.b).filter(Boolean),a=ms.map(x=>x.a).filter(Boolean);
+  if(ks.indexOf(k)<7){bs.push(...b);as.push(...a);ext+=b.filter(x=>x<=2).length;cheia+=a.filter(x=>x>=8).length;if(D.kcal)kc.push(+D.kcal);if(D.prot)pr.push(+D.prot)}
+  return`<tr data-a="go" data-k="${k}"><td>${dOf(k).toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})}</td><td>${ms.filter(x=>x.ate).length}/6</td><td>${av(b)}</td><td>${av(a)}</td><td>${D.agua||"–"}</td><td>${D.coca||"–"}</td><td>${D.en?EM[D.en-1]:"–"}</td><td>${D.hu?EM[D.hu-1]:"–"}</td><td>${D.kcal||"–"}</td><td>${D.prot||"–"}</td></tr>`}).join("");
+ return`<div class="cd"><b>Últimos 7 dias</b><div class="pl">Fome média antes de comer: <b>${av(bs)}</b> · depois: <b>${av(as)}</b><br>Chegou com fome extrema (1–2): <b>${ext}</b> vezes · terminou muito cheia (8+): <b>${cheia}</b> vezes<br>Calorias médias: <b>${kc.length?av(kc):"–"}</b> kcal (meta ${META_KCAL}) · Proteína média: <b>${pr.length?av(pr):"–"}</b> g (meta ${META_PROT}+)</div><div class="mu">Referência: antes 3–4, depois 6–7.</div></div>
+ <div class="cd wr"><table><tr><th>Dia</th><th>Comeu</th><th>Fome antes</th><th>Fome depois</th><th>Água</th><th>Coca</th><th>Energia</th><th>Humor</th><th>Kcal</th><th>Prot.</th></tr>${rows}</table></div><div class="mu">Toque em uma linha para abrir o dia.</div>`}
+
+function compras(){
+ const SH=shopFor(semW);
+ return`<div class="mu">Lista de compras da ${WL[semW]}. Toque para marcar o que já tem em casa. Delivery não entra na lista.</div>
+ <nav>${[0,1,2,3].map(w=>`<button data-a="semw" data-v="${w}" class="${semW==w?"on":""}">${WL[w]}</button>`).join("")}</nav>
+ <div class="g">`+Object.entries(SH).map(([k,v],a)=>`<div class="cd"><b>${k}</b>`+v.map((i,b)=>`<label class="ck"><input type="checkbox" data-f="sh" data-k="${semW}-${a}-${b}" ${C[semW+"-"+a+"-"+b]?"checked":""}><span>${H(i)}</span></label>`).join("")+`</div>`).join("")+`</div>`}
+
+function render(){
+ document.getElementById("nav").innerHTML=[["hoje","Hoje"],["sem","Semana"],["his","Histórico"],["cp","Compras"]].map(([k,n])=>`<button data-a="tab" data-v="${k}" class="${tab==k?"on":""}">${n}</button>`).join("");
+ document.getElementById("app").innerHTML={hoje,sem:semana,his:hist,cp:compras}[tab]()}
+
+document.addEventListener("click",async e=>{
+ const b=e.target.closest("[data-a]");if(!b)return;const a=b.dataset.a,v=b.dataset.v;
+ if(a=="tab")tab=v;
+ else if(a=="semw")semW=+v;
+ else if(a=="nav"){const d=dOf(cur);d.setDate(d.getDate()+ +v);cur=key(d)}
+ else if(a=="today")cur=key(new Date());
+ else if(a=="go"){cur=b.dataset.k;tab="hoje"}
+ else if(a=="th"){const m=day(cur).m[b.dataset.s]||(day(cur).m[b.dataset.s]={});m[b.dataset.k]=m[b.dataset.k]==v?0:+v;save(cur)}
+ else if(a=="ct"){const D=day(cur);D[b.dataset.f]=Math.max(0,D[b.dataset.f]+ +v);save(cur)}
+ else if(a=="sc"){const D=day(cur);D[b.dataset.f]=D[b.dataset.f]==v?0:+v;save(cur)}
+ else if(a=="cm"){try{const c=await claude.use("comments");if(c)c.openComposer({element:document.getElementById("daycard")})}catch(_){}return}
+ render()});
+document.addEventListener("change",e=>{
+ const f=e.target.dataset.f;if(!f)return;
+ if(f=="sh"){C[e.target.dataset.k]=e.target.checked;saveC();return}
+ if(f=="ate"){const D=day(cur);(D.m[e.target.dataset.s]||(D.m[e.target.dataset.s]={})).ate=e.target.checked;save(cur)}
+ else if(f=="int"){day(cur).int=e.target.value;save(cur)}});
+document.addEventListener("input",e=>{
+ const f=e.target.dataset.f;if(!f)return;const D=day(cur);
+ if(f=="mn"){(D.m[e.target.dataset.s]||(D.m[e.target.dataset.s]={})).n=e.target.value;save(cur)}
+ else if(["sono","peso","kcal","prot","nota"].includes(f)){D[f]=e.target.value;save(cur)}});
+
+render();
+(async()=>{try{db=await claude.use("db")}catch(_){}
+ if(!db){ban("Modo sem salvar: os registros não ficam guardados neste acesso.");return}
+ db.collection("diario").onSnapshot(s=>{s.docs.forEach(d=>{S[d.id]=d.data()});if(!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))render()},()=>ban("Não foi possível carregar os registros."));
+ db.doc("compras/lista").onSnapshot(s=>{if(s.exists)C=s.data().c||{};if(tab=="cp"&&!/INPUT/.test(document.activeElement.tagName))render()},()=>{})})();
+</script>
+</body>
+</html>
